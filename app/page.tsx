@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { toast } from 'sonner';
 import { useCart } from '@/context/CartContext';
 
@@ -94,7 +95,10 @@ function ProductCard({ product }: { product: Product }) {
 
   return (
     <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col">
-      <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+      <Link
+        href={`/products/${product.id}`}
+        className="relative aspect-[4/3] overflow-hidden bg-gray-100 block"
+      >
         <img
           src={product.imageUrl}
           alt={product.name}
@@ -105,12 +109,16 @@ function ProductCard({ product }: { product: Product }) {
             <span className="text-white font-semibold text-lg">Sold Out</span>
           </div>
         )}
-      </div>
+      </Link>
 
       <div className="p-5 flex flex-col flex-1 gap-3">
         <div>
           <div className="flex items-start justify-between gap-2 mb-1">
-            <h3 className="font-semibold text-gray-900 text-base leading-snug">{product.name}</h3>
+            <h3 className="font-semibold text-gray-900 text-base leading-snug hover:text-blue-600 transition-colors">
+              <Link href={`/products/${product.id}`}>
+                {product.name}
+              </Link>
+            </h3>
             <StockBadge units={selectedInventory?.availableUnits ?? totalAvailable} />
           </div>
           <p className="text-xs text-gray-400 font-mono">SKU: {product.sku}</p>
