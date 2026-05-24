@@ -48,7 +48,7 @@ function CountdownRing({ expiresAt }: { expiresAt: string }) {
   const strokeDashoffset = circumference * (1 - progress);
 
   const color =
-    secondsLeft > 120 ? '#22c55e' : secondsLeft > 60 ? '#f59e0b' : '#ef4444';
+    secondsLeft > 120 ? '#10b981' : secondsLeft > 60 ? '#f59e0b' : '#ef4444';
 
   return (
     <div className="flex flex-col items-center gap-2">
@@ -59,7 +59,7 @@ function CountdownRing({ expiresAt }: { expiresAt: string }) {
             cy="64"
             r={radius}
             fill="none"
-            stroke="#e5e7eb"
+            stroke="var(--border)"
             strokeWidth="8"
           />
           <circle
@@ -79,11 +79,11 @@ function CountdownRing({ expiresAt }: { expiresAt: string }) {
           <span className="text-2xl font-bold tabular-nums" style={{ color }}>
             {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
           </span>
-          <span className="text-xs text-gray-400 mt-0.5">remaining</span>
+          <span className="text-[10px] text-text3 uppercase font-bold tracking-wider mt-0.5">remaining</span>
         </div>
       </div>
       {secondsLeft === 0 && (
-        <span className="text-sm font-medium text-red-600">Reservation expired</span>
+        <span className="text-sm font-semibold text-red-650 animate-pulse">Reservation expired</span>
       )}
     </div>
   );
@@ -133,7 +133,6 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
     fetchReservation();
   }, [fetchReservation]);
 
-  // Check expiry via local timer
   useEffect(() => {
     if (!reservation || reservation.status !== 'PENDING') return;
     const timeUntilExpiry = new Date(reservation.expiresAt).getTime() - Date.now();
@@ -215,13 +214,13 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
 
   if (loading) {
     return (
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-16 flex items-center justify-center">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-16 flex items-center justify-center animate-pulse">
         <div className="flex flex-col items-center gap-4">
-          <svg className="animate-spin w-10 h-10 text-blue-600" fill="none" viewBox="0 0 24 24">
+          <svg className="animate-spin w-10 h-10 text-accentColor" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
           </svg>
-          <p className="text-gray-500">Loading reservation…</p>
+          <p className="text-text2">Loading reservation…</p>
         </div>
       </div>
     );
@@ -230,17 +229,17 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
   if (error && !reservation) {
     return (
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-16">
-        <div className="bg-red-50 border border-red-200 rounded-2xl p-8 text-center">
-          <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30 rounded-2xl p-8 text-center">
+          <div className="w-14 h-14 bg-red-100 dark:bg-red-950/40 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg className="w-7 h-7 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h2 className="text-xl font-semibold text-red-800 mb-2">Reservation Unavailable</h2>
-          <p className="text-red-600 mb-6">{error}</p>
+          <h2 className="text-xl font-bold text-red-800 dark:text-red-400 mb-2">Reservation Unavailable</h2>
+          <p className="text-red-650 dark:text-red-400/80 mb-6">{error}</p>
           <a
             href="/"
-            className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-2.5 rounded-xl font-medium hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center gap-2 bg-accentColor text-white px-6 py-2.5 rounded-xl font-medium hover:bg-accentHover transition-colors"
           >
             Browse Products
           </a>
@@ -258,7 +257,7 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10">
       <div className="mb-6">
-        <a href="/" className="text-sm text-blue-600 hover:underline flex items-center gap-1">
+        <a href="/" className="text-sm text-accentColor hover:underline flex items-center gap-1 font-semibold">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
@@ -266,18 +265,18 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
         </a>
       </div>
 
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-        {/* Status banner */}
+      <div className="bg-surface rounded-2xl border border-border shadow-sm overflow-hidden">
+        
         {isConfirmed && (
-          <div className="bg-emerald-50 border-b border-emerald-200 px-6 py-4 flex items-center gap-3">
-            <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
-              <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          <div className="bg-emerald-50 dark:bg-emerald-950/20 border-b border-emerald-250/20 px-6 py-4 flex items-center gap-3">
+            <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-950/40 rounded-full flex items-center justify-center flex-shrink-0">
+              <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
               </svg>
             </div>
             <div>
-              <p className="font-semibold text-emerald-800">Order Confirmed</p>
-              <p className="text-sm text-emerald-600">
+              <p className="font-bold text-emerald-800 dark:text-emerald-400">Order Confirmed</p>
+              <p className="text-xs text-emerald-600 dark:text-emerald-400/80">
                 Confirmed at {new Date(reservation.confirmedAt!).toLocaleString()}
               </p>
             </div>
@@ -285,24 +284,24 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
         )}
 
         {(isReleased || (expired && !isConfirmed)) && (
-          <div className="bg-red-50 border-b border-red-200 px-6 py-4 flex items-center gap-3">
-            <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-              <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-red-50 dark:bg-red-950/20 border-b border-red-250/20 px-6 py-4 flex items-center gap-3">
+            <div className="w-8 h-8 bg-red-100 dark:bg-red-950/40 rounded-full flex items-center justify-center flex-shrink-0">
+              <svg className="w-5 h-5 text-red-650 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </div>
             <div>
-              <p className="font-semibold text-red-800">
+              <p className="font-bold text-red-800 dark:text-red-400">
                 {isReleased ? 'Reservation Cancelled' : 'Reservation Expired'}
               </p>
-              <p className="text-sm text-red-600">{error || 'Stock has been released back.'}</p>
+              <p className="text-xs text-red-600 dark:text-red-400/85">{error || 'Stock has been released back.'}</p>
             </div>
           </div>
         )}
 
         {/* Product details */}
-        <div className="flex gap-5 p-6 border-b border-gray-100">
-          <div className="w-24 h-24 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
+        <div className="flex gap-5 p-6 border-b border-border">
+          <div className="w-24 h-24 rounded-xl overflow-hidden bg-bg flex-shrink-0 border border-border/80">
             <img
               src={reservation.product.imageUrl}
               alt={reservation.product.name}
@@ -310,33 +309,33 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
             />
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="text-xl font-bold text-gray-900 mb-1">{reservation.product.name}</h1>
-            <p className="text-xs text-gray-400 font-mono mb-2">SKU: {reservation.product.sku}</p>
-            <p className="text-sm text-gray-600 line-clamp-2">{reservation.product.description}</p>
+            <h1 className="text-xl font-bold text-text1 mb-1 leading-snug">{reservation.product.name}</h1>
+            <p className="text-[10px] text-text3 font-mono font-semibold uppercase tracking-wider mb-2">SKU: {reservation.product.sku}</p>
+            <p className="text-sm text-text2 line-clamp-2 leading-relaxed">{reservation.product.description}</p>
           </div>
         </div>
 
         {/* Order summary */}
         <div className="p-6 space-y-3">
           <div className="flex justify-between text-sm">
-            <span className="text-gray-500">Warehouse</span>
-            <span className="font-medium text-gray-900">
+            <span className="text-text2 font-medium">Warehouse</span>
+            <span className="font-bold text-text1">
               {reservation.warehouse.name} — {reservation.warehouse.location}
             </span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-gray-500">Quantity</span>
-            <span className="font-medium text-gray-900">{reservation.quantity}</span>
+            <span className="text-text2 font-medium">Quantity</span>
+            <span className="font-bold text-text1 font-mono">{reservation.quantity}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-gray-500">Unit Price</span>
-            <span className="font-medium text-gray-900">
+            <span className="text-text2 font-medium">Unit Price</span>
+            <span className="font-bold text-text1 font-mono">
               ₹{reservation.product.price.toLocaleString('en-IN')}
             </span>
           </div>
-          <div className="border-t border-gray-100 pt-3 flex justify-between">
-            <span className="font-semibold text-gray-900">Total</span>
-            <span className="text-xl font-bold text-gray-900">
+          <div className="border-t border-border pt-4 flex justify-between items-center">
+            <span className="font-bold text-text1">Total</span>
+            <span className="text-xl font-extrabold text-text1 font-mono">
               ₹{(reservation.product.price * reservation.quantity).toLocaleString('en-IN')}
             </span>
           </div>
@@ -345,13 +344,13 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
         {/* Countdown + actions */}
         {isPending && (
           <div className="px-6 pb-6 space-y-6">
-            <div className="bg-blue-50 rounded-xl p-5 flex flex-col sm:flex-row items-center gap-4">
+            <div className="bg-accentColor/5 border border-accentColor/20 rounded-2xl p-5 flex flex-col sm:flex-row items-center gap-4">
               <CountdownRing expiresAt={reservation.expiresAt} />
               <div className="text-center sm:text-left">
-                <p className="font-semibold text-blue-900 mb-1">Your item is reserved</p>
-                <p className="text-sm text-blue-700">
+                <p className="font-bold text-text1 mb-1">Your item is reserved</p>
+                <p className="text-sm text-text2 leading-relaxed">
                   Complete your purchase before the timer runs out. After expiry, the item will
-                  be released back to inventory.
+                  be released back to inventory automatically.
                 </p>
               </div>
             </div>
@@ -360,11 +359,11 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
               <button
                 onClick={handleConfirm}
                 disabled={confirming || cancelling}
-                className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow"
+                className="flex-1 bg-accentColor text-white py-3.5 px-6 rounded-xl font-bold hover:bg-accentHover hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed border-0 outline-none focus-visible:ring-2 focus-visible:ring-accentColor cursor-pointer"
               >
                 {confirming ? (
                   <span className="flex items-center justify-center gap-2">
-                    <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                    <svg className="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                     </svg>
@@ -377,7 +376,7 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
               <button
                 onClick={handleCancel}
                 disabled={confirming || cancelling}
-                className="flex-1 sm:flex-none bg-white text-gray-700 border border-gray-200 py-3 px-6 rounded-xl font-semibold hover:bg-gray-50 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 sm:flex-none bg-surface text-text2 border border-border py-3 px-6 rounded-xl font-bold hover:bg-gray-100 dark:hover:bg-gray-800/80 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed border-0 outline-none focus-visible:ring-2 focus-visible:ring-accentColor cursor-pointer"
               >
                 {cancelling ? 'Cancelling…' : 'Cancel'}
               </button>
@@ -389,7 +388,7 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
           <div className="px-6 pb-6">
             <a
               href="/"
-              className="block w-full text-center bg-blue-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-blue-700 transition-colors"
+              className="block w-full text-center bg-accentColor text-white py-3.5 px-6 rounded-xl font-bold hover:bg-accentHover hover:scale-[1.01] active:scale-[0.99] transition-all"
             >
               Start New Order
             </a>
@@ -400,7 +399,7 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
           <div className="px-6 pb-6">
             <a
               href="/"
-              className="block w-full text-center bg-emerald-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-emerald-700 transition-colors"
+              className="block w-full text-center bg-emerald-600 text-white py-3.5 px-6 rounded-xl font-bold hover:bg-emerald-700 hover:scale-[1.01] active:scale-[0.99] transition-all"
             >
               Continue Shopping
             </a>
@@ -408,8 +407,7 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
         )}
       </div>
 
-      {/* Reservation ID */}
-      <p className="text-center text-xs text-gray-400 mt-4 font-mono">
+      <p className="text-center text-[10px] text-text3 mt-4 font-mono font-semibold uppercase tracking-wider">
         Reservation ID: {reservation.id}
       </p>
     </div>

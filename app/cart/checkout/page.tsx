@@ -63,7 +63,7 @@ function CountdownRing({ expiresAt }: { expiresAt: string }) {
             cy="60"
             r={radius}
             fill="none"
-            stroke="#f3f4f6"
+            stroke="var(--border)"
             strokeWidth="8"
           />
           <circle
@@ -83,11 +83,11 @@ function CountdownRing({ expiresAt }: { expiresAt: string }) {
           <span className="text-xl font-bold tabular-nums" style={{ color }}>
             {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
           </span>
-          <span className="text-[10px] text-gray-400 mt-0.5 uppercase tracking-wide">remaining</span>
+          <span className="text-[9px] text-text3 font-bold uppercase tracking-wider mt-0.5">remaining</span>
         </div>
       </div>
       {secondsLeft === 0 && (
-        <span className="text-xs font-semibold text-red-600">Stock released</span>
+        <span className="text-xs font-bold text-red-655 animate-pulse">Released</span>
       )}
     </div>
   );
@@ -109,8 +109,6 @@ export default function CartCheckoutPage() {
   const [confirming, setConfirming] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [expired, setExpired] = useState(false);
-
-  // Tracks error/status strings per reservation ID (e.g. status code or message)
   const [itemErrors, setItemErrors] = useState<Record<string, string>>({});
 
   const fetchReservations = useCallback(async () => {
@@ -173,7 +171,6 @@ export default function CartCheckoutPage() {
     fetchReservations();
   }, [fetchReservations]);
 
-  // Find the earliest expiring reservation that is still PENDING
   const activePendingReservations = reservations.filter((r) => r.status === 'PENDING');
   const earliestExpiry = activePendingReservations.length > 0
     ? activePendingReservations.reduce((earliest, res) => {
@@ -182,7 +179,6 @@ export default function CartCheckoutPage() {
       }, Infinity)
     : null;
 
-  // Track expiry locally
   useEffect(() => {
     if (!earliestExpiry) return;
     const timeUntilExpiry = earliestExpiry - Date.now();
@@ -195,7 +191,7 @@ export default function CartCheckoutPage() {
     const timer = setTimeout(() => {
       setExpired(true);
       toast.error('Your stock reservations have expired.');
-      fetchReservations(); // Refresh statuses
+      fetchReservations();
     }, timeUntilExpiry);
 
     return () => clearTimeout(timer);
@@ -238,7 +234,7 @@ export default function CartCheckoutPage() {
 
         if (res.ok) {
           updatedReservations[index] = res.data;
-          delete updatedMap[res.id]; // Clear error if success
+          delete updatedMap[res.id];
         } else {
           overallSuccess = false;
           updatedMap[res.id] = res.data?.error || `Confirmation failed (${res.status})`;
@@ -256,7 +252,7 @@ export default function CartCheckoutPage() {
 
       if (overallSuccess) {
         toast.success('All purchases confirmed! Thank you for your order.');
-        clearCart(); // Clear the localStorage shopping cart on successful confirmation
+        clearCart();
       } else {
         toast.error('Some reservations could not be confirmed. Check details below.');
       }
@@ -312,13 +308,13 @@ export default function CartCheckoutPage() {
 
   if (loading) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-16 flex items-center justify-center">
+      <div className="max-w-4xl mx-auto px-4 py-16 flex items-center justify-center animate-pulse">
         <div className="flex flex-col items-center gap-4">
-          <svg className="animate-spin w-10 h-10 text-blue-600" fill="none" viewBox="0 0 24 24">
+          <svg className="animate-spin w-10 h-10 text-accentColor" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
           </svg>
-          <p className="text-gray-500">Retrieving held inventory details…</p>
+          <p className="text-text2">Retrieving held inventory details…</p>
         </div>
       </div>
     );
@@ -327,17 +323,17 @@ export default function CartCheckoutPage() {
   if (error && reservations.length === 0) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-16">
-        <div className="bg-red-50 border border-red-200 rounded-2xl p-8 text-center shadow-sm">
-          <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30 rounded-2xl p-8 text-center shadow-sm">
+          <div className="w-14 h-14 bg-red-100 dark:bg-red-950/40 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg className="w-7 h-7 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h2 className="text-xl font-bold text-red-800 mb-2">Checkout Unavailable</h2>
-          <p className="text-red-600 mb-6">{error}</p>
+          <h2 className="text-xl font-bold text-red-800 dark:text-red-450 mb-2">Checkout Unavailable</h2>
+          <p className="text-red-655 dark:text-red-400/80 mb-6">{error}</p>
           <Link
             href="/"
-            className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-2.5 rounded-xl font-medium hover:bg-blue-700 transition-colors shadow"
+            className="inline-flex items-center gap-2 bg-accentColor text-white px-6 py-2.5 rounded-xl font-medium hover:bg-accentHover transition-colors shadow"
           >
             Browse Products
           </Link>
@@ -349,20 +345,18 @@ export default function CartCheckoutPage() {
   const allConfirmed = reservations.length > 0 && reservations.every((r) => r.status === 'CONFIRMED');
   const allReleased = reservations.length > 0 && reservations.every((r) => r.status === 'RELEASED');
   const showCountdown = !allConfirmed && !allReleased && earliestExpiry !== null && !expired;
-
-  // Calculate sum of only successfully fetched and active items
   const totalPriceSum = reservations.reduce((sum, res) => sum + res.product.price * res.quantity, 0);
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
       <div className="mb-6 flex items-center justify-between">
-        <Link href="/cart" className="text-sm text-blue-600 hover:underline flex items-center gap-1 font-medium">
+        <Link href="/cart" className="text-sm text-accentColor hover:underline flex items-center gap-1 font-semibold">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
           Back to cart
         </Link>
-        <span className="text-xs text-gray-400 font-mono">
+        <span className="text-xs text-text3 font-mono font-bold uppercase tracking-wider">
           Items reserved: {reservations.length}
         </span>
       </div>
@@ -371,15 +365,15 @@ export default function CartCheckoutPage() {
         {/* Reservation Items List */}
         <div className="lg:col-span-2 space-y-4">
           {allConfirmed && (
-            <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 flex items-center gap-3 shadow-sm animate-fade-in">
-              <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-250/20 rounded-2xl p-5 flex items-center gap-3 shadow-xs animate-fade-in">
+              <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-950/40 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg className="w-6 h-6 text-emerald-600 dark:text-emerald-450" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
               <div>
-                <p className="font-bold text-emerald-800 text-lg">Purchase Confirmed!</p>
-                <p className="text-sm text-emerald-600">
+                <p className="font-bold text-emerald-800 dark:text-emerald-400 text-lg">Purchase Confirmed!</p>
+                <p className="text-sm text-emerald-600 dark:text-emerald-400/80">
                   Thank you! Your stock has been successfully purchased and checked out.
                 </p>
               </div>
@@ -387,15 +381,15 @@ export default function CartCheckoutPage() {
           )}
 
           {allReleased && (
-            <div className="bg-red-50 border border-red-200 rounded-2xl p-5 flex items-center gap-3 shadow-sm">
-              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-red-50 dark:bg-red-950/20 border border-red-250/20 rounded-2xl p-5 flex items-center gap-3 shadow-xs">
+              <div className="w-10 h-10 bg-red-100 dark:bg-red-950/40 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg className="w-6 h-6 text-red-655 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </div>
               <div>
-                <p className="font-bold text-red-800 text-lg">Order Cancelled or Expired</p>
-                <p className="text-sm text-red-600">
+                <p className="font-bold text-red-800 dark:text-red-400 text-lg">Order Cancelled or Expired</p>
+                <p className="text-sm text-red-600 dark:text-red-400/80">
                   All inventory reservations have been released back to stock.
                 </p>
               </div>
@@ -410,64 +404,61 @@ export default function CartCheckoutPage() {
             return (
               <div
                 key={res.id}
-                className={`bg-white rounded-2xl border p-4 sm:p-5 shadow-sm transition-all flex gap-4 ${
+                className={`bg-surface rounded-2xl border p-4 sm:p-5 shadow-xs transition-all flex gap-4 ${
                   isItemConfirmed
-                    ? 'border-emerald-200 bg-emerald-50/20'
+                    ? 'border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/10'
                     : isItemReleased
-                    ? 'border-red-200 bg-red-50/10 opacity-70'
-                    : 'border-gray-200'
+                    ? 'border-red-200 dark:border-red-900/50 bg-red-50/5 opacity-70'
+                    : 'border-border'
                 }`}
               >
-                {/* Product image */}
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-gray-50 flex-shrink-0 border border-gray-100">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-bg flex-shrink-0 border border-border">
                   <img src={res.product.imageUrl} alt={res.product.name} className="w-full h-full object-cover" />
                 </div>
 
-                {/* Details */}
                 <div className="flex-1 min-w-0 flex flex-col justify-between">
                   <div>
                     <div className="flex justify-between items-start gap-2">
-                      <h3 className="font-semibold text-gray-900 text-sm sm:text-base leading-tight truncate">
+                      <h3 className="font-bold text-text1 text-sm sm:text-base leading-tight truncate">
                         {res.product.name}
                       </h3>
                       {isItemConfirmed && (
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full flex-shrink-0">
+                        <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 dark:bg-emerald-950/20 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 px-2 py-0.5 rounded-full flex-shrink-0">
                           Confirmed
                         </span>
                       )}
                       {isItemReleased && (
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-red-700 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full flex-shrink-0">
+                        <span className="text-[9px] font-bold uppercase tracking-wider text-red-700 bg-red-50 dark:bg-red-950/20 dark:text-red-400 border border-red-200 dark:border-red-900/40 px-2 py-0.5 rounded-full flex-shrink-0">
                           Released
                         </span>
                       )}
                       {res.status === 'PENDING' && !expired && (
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full flex-shrink-0">
+                        <span className="text-[9px] font-bold uppercase tracking-wider text-accentColor bg-accentColor/10 border border-accentColor/25 px-2 py-0.5 rounded-full flex-shrink-0">
                           Reserved
                         </span>
                       )}
                     </div>
-                    <p className="text-[10px] text-gray-400 font-mono mt-0.5">SKU: {res.product.sku}</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Warehouse: <span className="font-semibold text-gray-700">{res.warehouse.name}</span>
+                    <p className="text-[9px] text-text3 font-mono font-semibold uppercase tracking-wider mt-0.5">SKU: {res.product.sku}</p>
+                    <p className="text-xs text-text2 mt-1">
+                      Warehouse: <span className="font-bold text-text1">{res.warehouse.name}</span>
                     </p>
                   </div>
 
-                  <div className="flex justify-between items-end mt-3 border-t border-gray-50 pt-2">
-                    <span className="text-xs text-gray-400">
-                      Qty: <span className="font-bold text-gray-700 font-mono">{res.quantity}</span>
+                  <div className="flex justify-between items-end mt-3 border-t border-border/60 pt-2">
+                    <span className="text-xs text-text2 font-medium">
+                      Qty: <span className="font-bold text-text1 font-mono">{res.quantity}</span>
                     </span>
-                    <span className="text-sm font-bold text-gray-900 font-mono">
+                    <span className="text-sm font-bold text-text1 font-mono">
                       ₹{(res.product.price * res.quantity).toLocaleString('en-IN')}
                     </span>
                   </div>
 
-                  {/* Individual Item error warning */}
                   {hasItemError && (
-                    <div className="mt-3 bg-red-50 border border-red-200 rounded-xl px-3 py-2 text-xs text-red-700 flex items-center gap-1.5 animate-pulse">
+                    <div className="mt-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30 rounded-xl px-3 py-2 text-xs text-red-700 dark:text-red-400 flex items-center gap-1.5 animate-pulse font-semibold">
                       <svg className="w-4 h-4 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      <span className="font-medium">{hasItemError}</span>
+                      <span>{hasItemError}</span>
                     </div>
                   )}
                 </div>
@@ -477,40 +468,38 @@ export default function CartCheckoutPage() {
         </div>
 
         {/* Sidebar Order Actions */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm sticky top-24">
-          <h2 className="text-lg font-bold text-gray-900 border-b border-gray-100 pb-4 mb-4">
+        <div className="bg-surface rounded-2xl border border-border p-6 shadow-sm sticky top-24 space-y-6">
+          <h2 className="text-lg font-bold text-text1 border-b border-border pb-4">
             Payment Summary
           </h2>
 
-          <div className="space-y-3 mb-6">
-            <div className="flex justify-between text-sm text-gray-500">
-              <span>Total Price</span>
-              <span className="text-lg font-bold text-gray-900 font-mono">
+          <div className="space-y-3">
+            <div className="flex justify-between text-sm items-center">
+              <span className="text-text2 font-medium">Total Price</span>
+              <span className="text-lg font-bold text-text1 font-mono">
                 ₹{totalPriceSum.toLocaleString('en-IN')}
               </span>
             </div>
           </div>
 
-          {/* Countdown timer */}
           {showCountdown && earliestExpiry && (
-            <div className="bg-blue-50/75 rounded-2xl p-4 border border-blue-100 flex flex-col items-center mb-6">
+            <div className="bg-accentColor/5 rounded-2xl p-4 border border-accentColor/20 flex flex-col items-center">
               <CountdownRing expiresAt={new Date(earliestExpiry).toISOString()} />
-              <p className="text-xs text-blue-900 font-semibold mt-3 text-center">
+              <p className="text-xs text-text1 font-bold mt-3 text-center">
                 Urgent Shared Reservation Expiry
               </p>
-              <p className="text-[10px] text-blue-700 mt-1 text-center">
+              <p className="text-[10px] text-text2 mt-1 text-center leading-normal">
                 If the timer runs out, items will be released back to public inventory.
               </p>
             </div>
           )}
 
-          {/* Actions */}
           {!allConfirmed && !allReleased && (
-            <div className="space-y-3">
+            <div className="space-y-3 pt-2">
               <button
                 onClick={handleConfirmAll}
                 disabled={confirming || cancelling || expired}
-                className="w-full bg-emerald-600 text-white py-3.5 px-6 rounded-xl font-semibold hover:bg-emerald-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                className="w-full bg-emerald-600 text-white py-3.5 px-6 rounded-xl font-bold hover:bg-emerald-700 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg flex items-center justify-center gap-2 border-0 outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 cursor-pointer"
               >
                 {confirming ? (
                   <>
@@ -527,7 +516,7 @@ export default function CartCheckoutPage() {
               <button
                 onClick={handleCancelAll}
                 disabled={confirming || cancelling}
-                className="w-full bg-white text-gray-700 border border-gray-200 py-3 px-6 rounded-xl font-semibold hover:bg-gray-50 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-surface text-text2 border border-border py-3 px-6 rounded-xl font-bold hover:bg-gray-100 dark:hover:bg-gray-800/80 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed border-0 outline-none focus-visible:ring-2 focus-visible:ring-accentColor cursor-pointer"
               >
                 {cancelling ? 'Cancelling Reservations…' : 'Cancel All & Release'}
               </button>
@@ -537,7 +526,7 @@ export default function CartCheckoutPage() {
           {allConfirmed && (
             <Link
               href="/"
-              className="block w-full text-center bg-emerald-600 text-white py-3.5 px-6 rounded-xl font-semibold hover:bg-emerald-700 transition-colors shadow"
+              className="block w-full text-center bg-emerald-600 text-white py-3.5 px-6 rounded-xl font-bold hover:bg-emerald-700 transition-colors shadow hover:scale-[1.01] active:scale-[0.99]"
             >
               Continue Shopping
             </Link>
@@ -546,7 +535,7 @@ export default function CartCheckoutPage() {
           {allReleased && (
             <Link
               href="/"
-              className="block w-full text-center bg-blue-600 text-white py-3.5 px-6 rounded-xl font-semibold hover:bg-blue-700 transition-colors shadow"
+              className="block w-full text-center bg-accentColor text-white py-3.5 px-6 rounded-xl font-bold hover:bg-accentHover transition-colors shadow hover:scale-[1.01] active:scale-[0.99]"
             >
               Start New Order
             </Link>

@@ -95,7 +95,7 @@ async function main() {
         description:
           'Laser reveals microscopic dust. Intelligent suction auto-adjusts to the floor type, powered by the most powerful Dyson motor.',
         price: 59900,
-        imageUrl: 'https://images.pexels.com/photos/38325/vacuum-cleaner-carpet-cleaner-housework-38325.jpeg?auto=compress&cs=tinysrgb&w=800',
+        imageUrl: 'https://www.pexels.com/photo/yellow-and-black-portable-fan-4112726/',
       },
     }),
     prisma.product.create({

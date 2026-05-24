@@ -60,6 +60,13 @@ const config: Config = {
           '4': 'hsl(var(--chart-4))',
           '5': 'hsl(var(--chart-5))',
         },
+        bg: 'var(--bg)',
+        surface: 'var(--surface)',
+        text1: 'var(--text-1)',
+        text2: 'var(--text-2)',
+        text3: 'var(--text-3)',
+        accentColor: 'var(--accent)',
+        accentHover: 'var(--accent-hover)',
       },
       keyframes: {
         'accordion-down': {
