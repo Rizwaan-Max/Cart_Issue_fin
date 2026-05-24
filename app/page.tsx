@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { useCart } from '@/context/CartContext';
 
 interface Warehouse {
   id: string;
@@ -54,9 +55,9 @@ function StockBadge({ units }: { units: number }) {
 }
 
 function ProductCard({ product }: { product: Product }) {
-  const router = useRouter();
   const [selectedWarehouseId, setSelectedWarehouseId] = useState('');
-  const [reserving, setReserving] = useState(false);
+  const { addItem } = useCart();
+  const [added, setAdded] = useState(false);
 
   const availableInventories = product.inventories.filter((inv) => inv.availableUnits > 0);
 
@@ -73,41 +74,22 @@ function ProductCard({ product }: { product: Product }) {
   const canReserve = selectedInventory && selectedInventory.availableUnits > 0;
   const totalAvailable = product.inventories.reduce((sum, inv) => sum + inv.availableUnits, 0);
 
-  async function handleReserve() {
-    if (!selectedWarehouseId || !canReserve) return;
-    setReserving(true);
-    try {
-      const idempotencyKey = `reserve-${product.id}-${selectedWarehouseId}-${Date.now()}`;
-      const res = await fetch('/api/reservations', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Idempotency-Key': idempotencyKey,
-        },
-        body: JSON.stringify({
-          productId: product.id,
-          warehouseId: selectedWarehouseId,
-          quantity: 1,
-        }),
-      });
-      const data = await res.json();
-
-      if (res.status === 409) {
-        toast.error('Out of stock — someone just grabbed the last unit!');
-        return;
-      }
-      if (!res.ok) {
-        toast.error(data.error || 'Failed to reserve item');
-        return;
-      }
-
-      toast.success('Item reserved! You have 10 minutes to complete checkout.');
-      router.push(`/checkout/${data.id}`);
-    } catch {
-      toast.error('Network error — please try again');
-    } finally {
-      setReserving(false);
-    }
+  function handleAddToCart() {
+    if (!selectedWarehouseId || !selectedInventory) return;
+    
+    addItem({
+      productId: product.id,
+      productName: product.name,
+      sku: product.sku,
+      price: product.price,
+      imageUrl: product.imageUrl,
+      warehouseId: selectedWarehouseId,
+      warehouseName: selectedInventory.warehouse.name,
+      quantity: 1,
+    });
+    
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1000);
   }
 
   return (
@@ -164,24 +146,25 @@ function ProductCard({ product }: { product: Product }) {
           )}
 
           <button
-            onClick={handleReserve}
-            disabled={!canReserve || reserving}
+            onClick={handleAddToCart}
+            disabled={!canReserve}
             className={`w-full py-2.5 px-4 rounded-xl text-sm font-semibold transition-all duration-150 ${
-              canReserve
+              added
+                ? 'bg-emerald-600 text-white shadow-sm'
+                : canReserve
                 ? 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.98] shadow-sm hover:shadow'
                 : 'bg-gray-100 text-gray-400 cursor-not-allowed'
             }`}
           >
-            {reserving ? (
-              <span className="flex items-center justify-center gap-2">
-                <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+            {added ? (
+              <span className="flex items-center justify-center gap-1.5">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
-                Reserving…
+                Added!
               </span>
             ) : canReserve ? (
-              'Reserve Now'
+              'Add to Cart'
             ) : (
               'Out of Stock'
             )}
